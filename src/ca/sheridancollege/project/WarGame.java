@@ -48,15 +48,23 @@ public class WarGame extends Game {
 
     @Override
     public void play() {
-        while (p1.cardsLeft() > 0 && p2.cardsLeft() > 0) {
+        Scanner scanner = new Scanner(System.in);
+        int rounds = 0;
+
+        while (p1.cardsLeft() > 0 && p2.cardsLeft() > 0 && rounds < 10) {
             System.out.println("----------------------------");
-            System.out.println("Press ENTER to play next round, or type EXIT to stop.");
-            Scanner scanner = new Scanner(System.in);
+            System.out.println("Round " + (rounds + 1));
+            System.out.println("Press ENTER to continue playing or type EXIT to stop playing.");
             String input = scanner.nextLine();
 
-            if (input.equalsIgnoreCase("exit")) break;
+            if (input.equalsIgnoreCase("exit")) {
+                break;
+            }
+
             battle(new ArrayList<>());
+            rounds++;
         }
+
         declareWinner();
     }
 
