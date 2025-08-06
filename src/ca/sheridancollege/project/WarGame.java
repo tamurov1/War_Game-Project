@@ -1,3 +1,10 @@
+/**
+ * SYST 17796 Project Base code.
+ * 
+ * @author andreas 2025.08.06
+ * @author tamurov 2025.08.06
+ */
+
 package ca.sheridancollege.project;
 
 import java.util.ArrayList;
@@ -12,25 +19,17 @@ public class WarGame extends Game {
     public WarGame() {
         super("War Card Game");
 
-        GroupOfCards deck = createStandardDeck();
+        Deck deck = Deck.createStandardDeck();
         deck.shuffle();
 
         ArrayList<Card> cards = deck.getCards();
-        ArrayList<WarCard> half1 = new ArrayList<>();
-        ArrayList<WarCard> half2 = new ArrayList<>();
+        GroupOfCards p1Deck = new GroupOfCards(26);
+        GroupOfCards p2Deck = new GroupOfCards(26);
 
         for (int i = 0; i < cards.size(); i++) {
-            if (i % 2 == 0) {
-                half1.add((WarCard) cards.get(i));
-            } else {
-                half2.add((WarCard) cards.get(i));
-            }
+            if (i % 2 == 0) p1Deck.getCards().add(cards.get(i));
+            else p2Deck.getCards().add(cards.get(i));
         }
-
-        GroupOfCards p1Deck = new GroupOfCards(26);
-        p1Deck.getCards().addAll(half1);
-        GroupOfCards p2Deck = new GroupOfCards(26);
-        p2Deck.getCards().addAll(half2);
 
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter your name: ");
@@ -45,45 +44,24 @@ public class WarGame extends Game {
         setPlayers(players);
     }
 
-    private GroupOfCards createStandardDeck() {
-        GroupOfCards deck = new GroupOfCards(52);
-        for (Suit suit : Suit.values()) {
-            for (Rank rank : Rank.values()) {
-                deck.getCards().add(new WarCard(suit, rank));
-            }
-        }
-        return deck;
-    }
-
     @Override
     public void play() {
-        Scanner scanner = new Scanner(System.in);
-        int rounds = 0;
-
-        while (p1.cardsLeft() > 0 && p2.cardsLeft() > 0 && rounds < 10) {
+        while (p1.cardsLeft() > 0 && p2.cardsLeft() > 0) {
             System.out.println("----------------------------");
-            System.out.println("Round " + (rounds + 1));
-            System.out.println("Press ENTER to continue playing or type EXIT to stop playing.");
+            System.out.println("Press ENTER to play next round, or type EXIT to stop.");
+            Scanner scanner = new Scanner(System.in);
             String input = scanner.nextLine();
 
-            if (input.equalsIgnoreCase("exit")) {
-                break;
-            }
-
+            if (input.equalsIgnoreCase("exit")) break;
             battle(new ArrayList<>());
-            rounds++;
         }
-
         declareWinner();
     }
 
     private void battle(ArrayList<WarCard> pile) {
         WarCard card1 = p1.flip();
         WarCard card2 = p2.flip();
-
-        if (card1 == null || card2 == null) {
-            return;
-        }
+        if (card1 == null || card2 == null) return;
 
         pile.add(card1);
         pile.add(card2);
@@ -109,16 +87,13 @@ public class WarGame extends Game {
 
     private void resolveWar(ArrayList<WarCard> pile) {
         if (!p1.hasEnough(WAR_FACE_DOWN + 1)) {
-            System.out.println(p1.getName() + " doesn't have enough cards for war. " + p2.getName() + " wins!");
+            System.out.println(p1.getName() + " doesn't have enough cards. " + p2.getName() + " wins!");
             p2.capture(pile);
-            p1.capture(new ArrayList<>());
             return;
         }
-
         if (!p2.hasEnough(WAR_FACE_DOWN + 1)) {
-            System.out.println(p2.getName() + " doesn't have enough cards for war. " + p1.getName() + " wins!");
+            System.out.println(p2.getName() + " doesn't have enough cards. " + p1.getName() + " wins!");
             p1.capture(pile);
-            p2.capture(new ArrayList<>());
             return;
         }
 
@@ -126,14 +101,17 @@ public class WarGame extends Game {
             pile.add(p1.flip());
             pile.add(p2.flip());
         }
-
         battle(pile);
     }
 
     @Override
     public void declareWinner() {
         System.out.println("Game Over");
-        if (p1.cardsLeft() > p2.cardsLeft()) {
+        if (p1.cardsLeft() == 52) {
+            System.out.println(p1.getName() + " has all the cards and wins the game!");
+        } else if (p2.cardsLeft() == 52) {
+            System.out.println(p2.getName() + " has all the cards and wins the game!");
+        } else if (p1.cardsLeft() > p2.cardsLeft()) {
             System.out.println(p1.getName() + " wins the game!");
         } else if (p2.cardsLeft() > p1.cardsLeft()) {
             System.out.println(p2.getName() + " wins the game!");
